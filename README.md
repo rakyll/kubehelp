@@ -53,3 +53,13 @@ $ kubehelp delete the service listening at 35.222.189.233
 kubectl delete service helloworld
 Execute: y
 service "helloworld" deleted
+```
+
+You no longer have to memorize jsonpaths:
+
+```sh
+$ kubehelp get cluster ip for the helloworld service
+kubectl get service helloworld -n test -o jsonpath='{.spec.clusterIP}'
+Execute: y
+34.118.235.216%
+```
