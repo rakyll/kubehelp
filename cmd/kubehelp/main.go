@@ -42,14 +42,15 @@ func main() {
 	if err != nil {
 		log.Fatalf("Couldn't confirm: %v", err)
 	}
-	if result == "y" {
-		for _, command := range commands {
-			cmd := exec.Command("sh", "-c", command)
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-			if err := cmd.Run(); err != nil {
-				log.Fatalf("Failed to run command: %v", err)
-			}
+	if result != "y" {
+		return
+	}
+	for _, command := range commands {
+		cmd := exec.Command("sh", "-c", command)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		if err := cmd.Run(); err != nil {
+			log.Fatalf("Failed to run command: %v", err)
 		}
 	}
 }
