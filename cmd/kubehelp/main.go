@@ -9,7 +9,6 @@ import (
 
 	"github.com/manifoldco/promptui"
 	"github.com/rakyll/kubehelp/client"
-	"github.com/rakyll/kubehelp/history"
 )
 
 func main() {
@@ -23,10 +22,6 @@ func main() {
 	}
 
 	c := client.NewClient(apiKey)
-	historyStore, err := history.NewStore("")
-	if err != nil {
-		log.Fatalf("Failed to create history store: %v", err)
-	}
 
 	commands, err := c.Prompt(strings.Join(os.Args[1:], " "))
 	if err != nil {
@@ -54,9 +49,6 @@ func main() {
 			cmd.Stderr = os.Stderr
 			if err := cmd.Run(); err != nil {
 				log.Fatalf("Failed to run command: %v", err)
-			}
-			if err := historyStore.Append(command); err != nil {
-				log.Printf("Failed to append to history: %v", err)
 			}
 		}
 	}
