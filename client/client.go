@@ -128,8 +128,6 @@ func (c *Client) readTmplData() (tmplData, error) {
 	if err != nil {
 		return tmplData{}, err
 	}
-
-	// TODO: Read history from a file.
 	return tmplData{
 		Namespaces:  namespaces,
 		Deployments: deployments,
@@ -162,7 +160,6 @@ type tmplData struct {
 	Namespaces  string
 	Deployments string
 	Pods        string
-	History     []string
 }
 
 var systemPromptTmpl = template.Must(template.New("prompt").Parse(`
@@ -183,8 +180,4 @@ Existing deployments:
 
 Existing pods:
 {{.Pods}}
-
-Recently executed commands:
-{{range .History}}{{.}}:
-{{else}}None{{end}}
 `))
