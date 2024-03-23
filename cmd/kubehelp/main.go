@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -23,20 +24,25 @@ func main() {
 
 	c := client.NewClient(apiKey)
 
-	commands, err := c.Prompt(strings.Join(os.Args[1:], " "))
+	data, err := c.Prompt(strings.Join(os.Args[1:], " "))
 	if err != nil {
 		log.Fatalf("Failed to prompt: %v", err)
 	}
+	commands := data.Commands
 	if len(commands) == 0 {
 		exit("Couldn't figure out what to execute...")
 	}
 
+	fmt.Println("Commands:")
 	for _, command := range commands {
-		fmt.Println(command)
+		fmt.Println(">>> ", command)
 	}
+
+	fmt.Printf("\nExplanation:\n%s\n\n", data.Explanation)
 	prompt := promptui.Prompt{
-		Label:     "Execute",
+		Label:     "Execute commands?",
 		IsConfirm: true,
+		Validate:  validate,
 	}
 	result, err := prompt.Run()
 	if err != nil {
@@ -53,6 +59,17 @@ func main() {
 			log.Fatalf("Failed to run command: %v", err)
 		}
 	}
+}
+
+func validate(input string) error {
+	input = strings.ToLower(input)
+	if input == "" {
+		return errors.New("Input is required. Please enter 'y' or 'n'.")
+	}
+	if input != "y" && input != "n" {
+		return errors.New("Invalid input. Please enter 'y' or 'n'.")
+	}
+	return nil
 }
 
 func exit(msg string) {
