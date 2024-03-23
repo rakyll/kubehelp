@@ -9,6 +9,8 @@ import (
 	"strings"
 	"text/template"
 	"time"
+
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -21,6 +23,11 @@ type Client struct {
 	apiKey     string
 }
 
+type Data struct {
+	Commands    []string `yaml:"commands"`
+	Explanation string   `yaml:"explanation"`
+}
+
 func NewClient(key string) *Client {
 	return &Client{
 		apiKey: key,
@@ -30,7 +37,7 @@ func NewClient(key string) *Client {
 	}
 }
 
-func (c *Client) Prompt(prompt string) ([]string, error) {
+func (c *Client) Prompt(prompt string) (*Data, error) {
 	data, err := c.readTmplData()
 	if err != nil {
 		return nil, err
@@ -64,17 +71,15 @@ func (c *Client) Prompt(prompt string) ([]string, error) {
 		return nil, nil
 	}
 
-	var commands []string
-	for _, c := range strings.Split(resp.Content[0].Text, "\n") {
-		if c == "" {
-			continue
-		}
-		if !strings.HasPrefix(c, "kubectl") {
-			continue
-		}
-		commands = append(commands, c)
+	cleaned_resp := c.stripYaml(resp.Content[0].Text)
+
+	var datablock Data
+	err = yaml.Unmarshal([]byte(cleaned_resp), &datablock)
+	if err != nil {
+		return nil, err
 	}
-	return commands, nil
+
+	return &datablock, nil
 }
 
 func (c *Client) Do(r *Request) (*Response, error) {
@@ -104,6 +109,13 @@ func (c *Client) Do(r *Request) (*Response, error) {
 		return nil, err
 	}
 	return &apiResp, nil
+}
+
+func (c *Client) stripYaml(incoming string) string {
+	strippedString := strings.TrimPrefix(incoming, "```yaml\n")
+	strippedString = strings.TrimPrefix(strippedString, "```\n")
+	strippedString = strings.TrimSuffix(strippedString, "\n```")
+	return strippedString
 }
 
 func (c *Client) kubectl(args ...string) (string, error) {
@@ -171,12 +183,24 @@ type tmplData struct {
 var systemPromptTmpl = template.Must(template.New("prompt").Parse(`
 You are a smart Kubernetes command line tool helper.
 You will be asked to respond to questions with a kubectl command with appropriate arguments and flags.
-Be concise, don't explain your response.
+Be concise, and add a brief explaination to your response.
 You can suggest more than one kubectl command. List them separately on a new line.
 Ensure that you follow user's preferred namespace and other relevant preferences. Once the user starts working in a specific namespace, continue answering for that specific namespace.
 Be aware of the current namespaces, services, and pods when answering.
 If you cannot find a kubectl command to answer the question, respond with an empty message.
-Never explain the response, only respond with lines starting with kubectl.
+Please split the response into commads and explnation with this structure below in a yaml format,
+Please provide the YAML response without wrapping it in markdown code blocks.
+Just return the plain YAML content shoult it would be able to parse directly.
+DO NOT INCLUDE '''yaml.
+Only respond commands with lines starting with kubectl.
+
+exact required response structure:
+"""
+commands:
+  - kubectl xxxxx
+  - kubectl xxxxx
+explanation: brief text here
+"""
 
 Existing namespaces available on the cluster:
 {{.Namespaces}}
