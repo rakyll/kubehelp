@@ -33,7 +33,7 @@ func main() {
 		log.Fatalf("Failed to prompt: %v", err)
 	}
 	if len(commands) == 0 {
-		exit("Couldn't figure out what kubectl commands to execute...")
+		exit("Couldn't figure out what to execute...")
 	}
 
 	for _, command := range commands {
