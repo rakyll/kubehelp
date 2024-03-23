@@ -28,6 +28,7 @@ Execute: y
 2024/03/23 00:21:42 Server listening on port 8080
 
 $ kubehelp delete the test namespace
+kubectl delete namespace test
 Execute: y
 namespace "test" deleted
 ```
