@@ -1,10 +1,18 @@
 # kubehelp
 
-A command line tool that generates kubectl commands.
+A command line tool that generates kubectl commands from a text
+description by using Claude 3 Opus.
+
+## Setup
 
 ```sh
 $ export ANTHROPIC_API_KEY=<insert key>
+$ go install github.com/rakyll/kubehelp/cmd/kubehelp@latest
+```
 
+## Usage
+
+```sh
 $ kubehelp deploy helloworld to the test namespace and expose it at 8080
 kubectl create namespace test
 kubectl create deployment helloworld --image=helloworld --namespace test
