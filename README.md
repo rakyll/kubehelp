@@ -3,6 +3,8 @@
 A command line tool that generates kubectl commands.
 
 ```sh
+$ export ANTHROPIC_API_KEY=<insert key>
+
 $ kubehelp deploy helloworld to the test namespace and expose it at 8080
 kubectl create namespace test
 kubectl create deployment helloworld --image=helloworld --namespace test
