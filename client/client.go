@@ -124,6 +124,10 @@ func (c *Client) readTmplData() (tmplData, error) {
 	if err != nil {
 		return tmplData{}, err
 	}
+	services, err := c.kubectl("get", "services", "-A")
+	if err != nil {
+		return tmplData{}, err
+	}
 	pods, err := c.kubectl("get", "pods", "-A")
 	if err != nil {
 		return tmplData{}, err
@@ -131,6 +135,7 @@ func (c *Client) readTmplData() (tmplData, error) {
 	return tmplData{
 		Namespaces:  namespaces,
 		Deployments: deployments,
+		Services:    services,
 		Pods:        pods,
 	}, nil
 }
@@ -159,6 +164,7 @@ type Content struct {
 type tmplData struct {
 	Namespaces  string
 	Deployments string
+	Services    string
 	Pods        string
 }
 
@@ -177,6 +183,9 @@ Existing namespaces available on the cluster:
 
 Existing deployments:
 {{.Deployments}}
+
+Existing services:
+{{.Services}}
 
 Existing pods:
 {{.Pods}}
