@@ -1,4 +1,4 @@
-# kubehelp
+# kubehelp [![Go](https://github.com/rakyll/kubehelp/actions/workflows/go.yml/badge.svg)](https://github.com/rakyll/kubehelp/actions/workflows/go.yml)
 
 A command line tool that generates kubectl commands from a text
 description by using Claude 3 Opus.
